@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beverage Sales Forecast API Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        pre {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .endpoint {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success {
+            background: #48bb78;
+            color: white;
+        }
+        .status.error {
+            background: #f56565;
+            color: white;
+        }
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍹 Beverage Sales Forecast API Test</h1>
+        
+        <div class="test-section">
+            <div class="endpoint">GET /health</div>
+            <button onclick="testHealth()">Test Health Check</button>
+            <pre id="health-result">Click button to test...</pre>
+        </div>
+
+        <div class="test-section">
+            <div class="endpoint">GET /api/states</div>
+            <button onclick="testStates()">Get Available States</button>
+            <pre id="states-result">Click button to test...</pre>
+        </div>
+
+        <div class="test-section">
+            <div class="endpoint">GET /api/models</div>
+            <button onclick="testModels()">Get Available Models</button>
+            <pre id="models-result">Click button to test...</pre>
+        </div>
+
+        <div class="test-section">
+            <div class="endpoint">POST /api/forecast</div>
+            <button onclick="testForecast()">Generate Forecast (California, XGBoost, 8 weeks)</button>
+            <pre id="forecast-result">Click button to test...</pre>
+        </div>
+
+        <div class="test-section">
+            <div class="endpoint">GET /api/historical</div>
+            <button onclick="testHistorical()">Get Historical Data (California, 10 records)</button>
+            <pre id="historical-result">Click button to test...</pre>
+        </div>
+
+        <div class="test-section">
+            <button onclick="testAll()" style="background: #48bb78; font-size: 18px; padding: 15px 30px;">
+                🚀 Run All Tests
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+
+        async function testHealth() {
+            const resultEl = document.getElementById('health-result');
+            resultEl.textContent = 'Loading...';
+            resultEl.className = 'loading';
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+                resultEl.style.color = '#48bb78';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.style.color = '#f56565';
+            }
+        }
+
+        async function testStates() {
+            const resultEl = document.getElementById('states-result');
+            resultEl.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/states`);
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+                resultEl.style.color = '#48bb78';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.style.color = '#f56565';
+            }
+        }
+
+        async function testModels() {
+            const resultEl = document.getElementById('models-result');
+            resultEl.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/models`);
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+                resultEl.style.color = '#48bb78';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.style.color = '#f56565';
+            }
+        }
+
+        async function testForecast() {
+            const resultEl = document.getElementById('forecast-result');
+            resultEl.textContent = 'Loading... (this may take a few seconds)';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/forecast`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        state: 'California',
+                        model: 'XGBoost',
+                        steps: 8
+                    })
+                });
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+                resultEl.style.color = '#48bb78';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.style.color = '#f56565';
+            }
+        }
+
+        async function testHistorical() {
+            const resultEl = document.getElementById('historical-result');
+            resultEl.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/historical?state=California&limit=10`);
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+                resultEl.style.color = '#48bb78';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.style.color = '#f56565';
+            }
+        }
+
+        async function testAll() {
+            await testHealth();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testStates();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testModels();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testForecast();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testHistorical();
+        }
+    </script>
+</body>
+</html>
